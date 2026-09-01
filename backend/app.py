@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from urllib.parse import unquote
 
-from flask import Flask, abort, jsonify, redirect, request, send_from_directory
+from flask import Flask, abort, jsonify, request, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
@@ -417,16 +417,6 @@ def create_app() -> Flask:
     @app.get("/health")
     def render_health():
         return jsonify({"status": "ok", "app": "VireSend"})
-
-    @app.before_request
-    def enforce_www_canonical():
-        if request.method != "GET":
-            return None
-        host = (request.host or "").split(":")[0].strip().lower()
-        if host != "viresender.com":
-            return None
-        query = f"?{request.query_string.decode('utf-8')}" if request.query_string else ""
-        return redirect(f"https://www.viresender.com{request.path}{query}", code=301)
 
     @app.get("/")
     def serve_index():
