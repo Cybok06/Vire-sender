@@ -10,7 +10,7 @@ from pymongo.server_api import ServerApi
 
 from config import Config
 from routes.admin_routes import admin_bp
-from routes.admin_sms_routes import admin_sms_bp
+from routes.admin_sms_routes import admin_users_sms_bp
 from routes.abuse_routes import admin_abuse_bp
 from routes.analytics_routes import admin_analytics_bp, analytics_bp
 from routes.auth_routes import auth_bp
@@ -392,7 +392,7 @@ def create_app() -> Flask:
     app.register_blueprint(public_embed_widgets_bp)
     app.register_blueprint(public_widget_page_bp)
     app.register_blueprint(admin_bp)
-    app.register_blueprint(admin_sms_bp)
+    app.register_blueprint(admin_users_sms_bp)
     app.register_blueprint(admin_abuse_bp)
     app.register_blueprint(admin_analytics_bp)
     app.register_blueprint(admin_sms_bp)

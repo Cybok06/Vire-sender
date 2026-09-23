@@ -14,7 +14,7 @@ from bson import ObjectId
 from flask import Flask
 from pymongo import MongoClient
 
-from routes.admin_sms_routes import admin_sms_bp
+from routes.admin_sms_routes import admin_users_sms_bp
 from services.admin_sms_service import adjust_customer_sms, customer_sms_report
 from services.sms_credit_service import reserve_sms_credits
 from utils.security import now_utc
@@ -23,7 +23,7 @@ from utils.security import now_utc
 class AdminSmsValidationTests(unittest.TestCase):
     def setUp(self):
         self.app = Flask(__name__)
-        self.app.register_blueprint(admin_sms_bp)
+        self.app.register_blueprint(admin_users_sms_bp)
         self.client = self.app.test_client()
         self.url = f"/api/admin/users-sms/{ObjectId()}/adjust"
 
@@ -176,7 +176,7 @@ class AdminSmsIntegrationTests(unittest.TestCase):
     def test_adjustment_endpoint_and_report(self):
         app = Flask(__name__)
         app.config["DB"] = self.db
-        app.register_blueprint(admin_sms_bp)
+        app.register_blueprint(admin_users_sms_bp)
         client = app.test_client()
         body = {"amount": 80, "type": "credit", "reason": "Customer correction", "request_id": str(uuid4())}
         with patch("utils.auth.get_auth_payload", return_value={"role": "admin", "user_id": "admin"}), \

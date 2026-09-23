@@ -8,10 +8,10 @@ from services.admin_sms_service import adjust_customer_sms, customer_sms_report
 from services.sms_credit_service import sms_credit_balance, update_low_credit_alert
 from utils.auth import require_admin
 
-admin_sms_bp = Blueprint("admin_sms", __name__, url_prefix="/api/admin/users-sms")
+admin_users_sms_bp = Blueprint("admin_users_sms", __name__, url_prefix="/api/admin/users-sms")
 
 
-@admin_sms_bp.get("")
+@admin_users_sms_bp.get("")
 @require_admin
 def report(payload):
     try:
@@ -21,7 +21,7 @@ def report(payload):
     return jsonify(customer_sms_report(current_app.config["DB"], request.args.get("search", "").strip()[:200], page))
 
 
-@admin_sms_bp.post("/<user_id>/adjust")
+@admin_users_sms_bp.post("/<user_id>/adjust")
 @require_admin
 def adjust(payload, user_id):
     data = request.get_json(silent=True)
