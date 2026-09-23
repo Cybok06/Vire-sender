@@ -1,0 +1,82 @@
+services:
+  - type: web
+    name: VireSender
+    env: python
+    buildCommand: npm install && npm run build && pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FRONTEND_URL
+        value: https://www.viresender.com
+      - key: CORS_ORIGINS
+        value: https://viresender.com,https://www.viresender.com
+      - key: GOOGLE_AUTH_REDIRECT_URI
+        value: https://www.viresender.com/api/auth/google/callback
+      - key: GOOGLE_CHAT_REDIRECT_URI
+        value: https://www.viresender.com/api/google-chat/callback
+      - key: GITHUB_REDIRECT_URI
+        value: https://www.viresender.com/api/auth/github/callback
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: viresend
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AI_ENABLED
+        value: "true"
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: VITE_API_URL
+        value: /api
+      - key: RECAPTCHA_REQUIRED
+        value: "false"
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: VITE_RECAPTCHA_SITE_KEY
+        sync: false
+  - type: worker
+    name: VireSenderEmailQueue
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python email_queue_worker.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FRONTEND_URL
+        value: https://www.viresender.com
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: viresend
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AI_ENABLED
+        value: "true"
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: EMAIL_QUEUE_WORKER_INTERVAL
+        value: "3"
+      - key: EMAIL_QUEUE_WORKER_BATCH
+        value: "5"

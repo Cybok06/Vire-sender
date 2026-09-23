@@ -1,0 +1,13 @@
+Flask==3.0.3
+Flask-CORS==4.0.1
+gunicorn==22.0.0
+pymongo==4.8.0
+dnspython==2.6.1
+python-dotenv==1.0.1
+Werkzeug==3.0.3
+itsdangerous==2.2.0
+PyJWT==2.9.0
+requests==2.32.3
+openai==1.59.6
+openpyxl==3.1.5
+phonenumbers==8.13.55

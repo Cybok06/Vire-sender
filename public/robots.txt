@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /user/
+Disallow: /dashboard/
+Disallow: /wallet/
+Disallow: /settings/
+Disallow: /api/
+Disallow: /v1/
+Disallow: /auth/
+Disallow: /embed/
+Disallow: /widget/
+
+Sitemap: https://www.viresender.com/sitemap.xml

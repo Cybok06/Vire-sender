@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d6efd">
+  <title>CYTECH MP583 Sales Receipt</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --blue: #0d6efd;
+      --blue-dark: #084eb5;
+      --green: #15803d;
+      --red: #b91c1c;
+      --muted: #64748b;
+      --border: #dbe3ec;
+      --background: #f3f6fa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: #111827;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: min(100%, 720px);
+      margin: 28px auto;
+      padding: 0 14px;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 12px 35px rgba(15, 23, 42, .10);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.65rem;
+    }
+
+    .intro {
+      color: var(--muted);
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    .printer-panel {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid #c9dcff;
+      border-radius: 14px;
+      background: #f5f9ff;
+    }
+
+    .printer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .status-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #94a3b8;
+      box-shadow: 0 0 0 5px rgba(148, 163, 184, .16);
+      flex: 0 0 auto;
+    }
+
+    .status-dot.ready {
+      background: #16a34a;
+      box-shadow: 0 0 0 5px rgba(22, 163, 74, .15);
+    }
+
+    .status-dot.busy {
+      background: #f59e0b;
+      box-shadow: 0 0 0 5px rgba(245, 158, 11, .15);
+    }
+
+    .status-dot.error {
+      background: #dc2626;
+      box-shadow: 0 0 0 5px rgba(220, 38, 38, .15);
+    }
+
+    .status-title {
+      font-weight: 800;
+      font-size: .95rem;
+    }
+
+    .status-detail {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      min-height: 42px;
+      padding: 10px 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .primary:hover { background: var(--blue-dark); }
+
+    .secondary {
+      background: #eef2f7;
+      color: #1f2937;
+      border: 1px solid var(--border);
+    }
+
+    .receipt-stage {
+      margin-top: 20px;
+      background: #e9eef4;
+      padding: 22px 12px;
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .receipt {
+      width: 58mm;
+      background: #fff;
+      color: #000;
+      padding: 2.5mm 2.3mm 3mm;
+      font-family: "Courier New", monospace;
+      font-size: 9px;
+      line-height: 1.26;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .18);
+      overflow-wrap: anywhere;
+    }
+
+    .center { text-align: center; }
+    .bold { font-weight: 900; }
+
+    .shop-name {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .rule {
+      border: 0;
+      border-top: 1px dashed #000;
+      margin: 5px 0;
+      opacity: 1;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 7px;
+      margin: 2px 0;
+    }
+
+    .row span:first-child { flex: 0 0 auto; }
+
+    .row span:last-child {
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .product {
+      font-weight: 900;
+      margin: 4px 0 6px;
+      line-height: 1.3;
+    }
+
+    .total-box {
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+      padding: 5px 0;
+      margin: 6px 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    #qrCode {
+      display: flex;
+      justify-content: center;
+      margin: 7px auto 3px;
+    }
+
+    #qrCode canvas,
+    #qrCode img {
+      width: 20mm !important;
+      height: 20mm !important;
+      image-rendering: pixelated;
+    }
+
+    .message {
+      margin-top: 14px;
+      min-height: 44px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      line-height: 1.4;
+      font-size: .86rem;
+    }
+
+    .message.success {
+      background: #dcfce7;
+      color: #14532d;
+    }
+
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 560px) {
+      .panel { padding: 17px 12px; }
+      .actions { width: 100%; }
+      .actions button { flex: 1 1 140px; }
+      .receipt-stage { padding-inline: 4px; }
+    }
+
+    @media print {
+      @page { size: 58mm auto; margin: 0; }
+
+      body {
+        background: #fff !important;
+        margin: 0 !important;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      #receipt,
+      #receipt * {
+        visibility: visible !important;
+      }
+
+      #receipt {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 58mm !important;
+        margin: 0 !important;
+        padding: 2mm 2mm 3mm !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <section class="panel">
+      <h1>CYTECH MP583 Receipt</h1>
+      <div class="intro">
+        Connect your paired MP583 printer, then print the hardcoded laptop sales receipt directly.
+      </div>
+
+      <div class="printer-panel">
+        <div class="printer-row">
+          <div class="status-wrap">
+            <span id="statusDot" class="status-dot"></span>
+            <div>
+              <div id="statusTitle" class="status-title">Printer not connected</div>
+              <div id="statusDetail" class="status-detail">MP583 · Bluetooth Classic · ESC/POS</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="connectBtn" type="button" class="secondary">Connect MP583</button>
+            <button id="printBtn" type="button" class="primary">Print Receipt</button>
+            <button id="browserPrintBtn" type="button" class="secondary">Browser Print</button>
+          </div>
+        </div>
+
+        <div id="message" class="message">
+          Pair the MP583 in your device Bluetooth settings first. Open this page through HTTPS or localhost in Chrome.
+        </div>
+      </div>
+
+      <div class="receipt-stage">
+        <article id="receipt" class="receipt">
+          <div class="shop-name">CYTECH</div>
+          <div class="center bold">Circle Tip Toe Lane</div>
+          <div class="center">Accra, Ghana</div>
+          <div class="center">Tel: 0530393625</div>
+
+          <hr class="rule">
+          <div class="center bold">SALES RECEIPT</div>
+          <hr class="rule">
+
+          <div class="row">
+            <span>Receipt No:</span>
+            <span>CYT-20260718-001</span>
+          </div>
+          <div class="row">
+            <span>Date:</span>
+            <span>18 Jul 2026</span>
+          </div>
+          <div class="row">
+            <span>Cashier:</span>
+            <span>Admin</span>
+          </div>
+
+          <hr class="rule">
+
+          <div class="row">
+            <span>Customer:</span>
+            <span>Walk-in Customer</span>
+          </div>
+
+          <hr class="rule">
+          <div class="bold">ITEM</div>
+          <div class="product">Lenovo ThinkPad X1 Carbon Gen 11</div>
+
+          <div class="row">
+            <span>Qty:</span>
+            <span>1</span>
+          </div>
+          <div class="row">
+            <span>Unit Price:</span>
+            <span>GHS 6,995.00</span>
+          </div>
+
+          <hr class="rule">
+
+          <div class="row">
+            <span>VAT (15%):</span>
+            <span>GHS 1,049.25</span>
+          </div>
+          <div class="row">
+            <span>NHIL (2.5%):</span>
+            <span>GHS 174.88</span>
+          </div>
+          <div class="row">
+            <span>GETFund (2.5%):</span>
+            <span>GHS 174.87</span>
+          </div>
+          <div class="row">
+            <span>Discount:</span>
+            <span>GHS -394.00</span>
+          </div>
+
+          <div class="row total-box">
+            <span>TOTAL:</span>
+            <span>GHS 8,000.00</span>
+          </div>
+
+          <div class="row">
+            <span>Payment:</span>
+            <span>MoMo</span>
+          </div>
+
+          <div id="qrCode" aria-label="Receipt verification QR code"></div>
+          <div class="center bold">SCAN TO VERIFY RECEIPT</div>
+
+          <hr class="rule">
+          <div class="center">Thank you for shopping with CYTECH</div>
+          <div class="center">Circle Tip Toe Lane, Accra</div>
+          <div class="center bold">Tel: 0530393625</div>
+          
+        </article>
+      </div>
+
+      <div class="note">
+        The direct printer button sends the receipt text and QR code as ESC/POS data to the MP583. Browser Print is kept as a fallback.
+      </div>
+    </section>
+  </main>
+  <canvas id="printQrCanvas" width="240" height="240"
+          style="position:fixed;left:-9999px;top:-9999px;" aria-hidden="true"></canvas>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const BAUD_RATE = 9600;
+      const CHUNK_SIZE = 256;
+      const CHUNK_DELAY_MS = 12;
+      const PAPER_COLUMNS = 32;
+
+      let printerPort = null;
+      let printing = false;
+
+      const receiptData = {
+        shop: "CYTECH",
+        address1: "Circle Tip Toe Lane",
+        address2: "Accra, Ghana",
+        phone: "0530393625",
+        receiptNo: "CYT-20260718-001",
+        date: "18 Jul 2026",
+        cashier: "Admin",
+        customer: "Walk-in Customer",
+        product: "Lenovo ThinkPad X1 Carbon Gen 11",
+        quantity: "1",
+        unitPrice: "GHS 6,995.00",
+        vat: "GHS 1,049.25",
+        nhil: "GHS 174.88",
+        getfund: "GHS 174.87",
+        discount: "GHS -394.00",
+        total: "GHS 8,000.00",
+        method: "MoMo"
+      };
+
+      const qrText = [
+        "CYTECH RECEIPT",
+        "Receipt: CYT-20260718-001",
+        "Date: 18 Jul 2026",
+        "Product: Lenovo ThinkPad X1 Carbon Gen 11",
+        "Total: GHS 8,000.00",
+        "Payment: MoMo",
+        "Location: Circle Tip Toe Lane, Accra",
+        "Phone: 0530393625"
+      ].join("\n");
+
+      const statusDot = document.getElementById("statusDot");
+      const statusTitle = document.getElementById("statusTitle");
+      const statusDetail = document.getElementById("statusDetail");
+      const message = document.getElementById("message");
+      const connectBtn = document.getElementById("connectBtn");
+      const printBtn = document.getElementById("printBtn");
+
+      function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      function setStatus(type, title, detail) {
+        statusDot.className = `status-dot${type ? ` ${type}` : ""}`;
+        statusTitle.textContent = title;
+        statusDetail.textContent = detail;
+      }
+
+      function setMessage(text, type = "") {
+        message.textContent = text;
+        message.className = `message${type ? ` ${type}` : ""}`;
+      }
+
+      function serialSupported() {
+        return "serial" in navigator;
+      }
+
+      function portOpen() {
+        return Boolean(printerPort && printerPort.writable);
+      }
+
+      function sanitize(value) {
+        return String(value ?? "")
+          .normalize("NFKD")
+          .replace(/[₵¢]/g, "GHS ")
+          .replace(/[–—]/g, "-")
+          .replace(/[‘’]/g, "'")
+          .replace(/[“”]/g, '"')
+          .replace(/…/g, "...")
+          .replace(/[^\x20-\x7E\n]/g, "");
+      }
+
+      function centered(value, width = PAPER_COLUMNS) {
+        const text = sanitize(value).slice(0, width);
+        const pad = Math.max(0, Math.floor((width - text.length) / 2));
+        return " ".repeat(pad) + text;
+      }
+
+      function pairLine(label, value, width = PAPER_COLUMNS) {
+        const left = sanitize(label);
+        const right = sanitize(value);
+
+        if (left.length + right.length + 1 <= width) {
+          return left + " ".repeat(width - left.length - right.length) + right;
+        }
+
+        return `${left}\n${right.padStart(Math.min(width, right.length + 2))}`;
+      }
+
+      function wrap(value, width = PAPER_COLUMNS) {
+        const words = sanitize(value).trim().split(/\s+/);
+        const lines = [];
+        let current = "";
+
+        for (const word of words) {
+          if (!current) {
+            current = word;
+          } else if (`${current} ${word}`.length <= width) {
+            current += ` ${word}`;
+          } else {
+            lines.push(current);
+            current = word;
+          }
+        }
+
+        if (current) lines.push(current);
+        return lines;
+      }
+
+      function concatBytes(...parts) {
+        const length = parts.reduce((sum, part) => sum + part.length, 0);
+        const result = new Uint8Array(length);
+        let offset = 0;
+
+        parts.forEach(part => {
+          result.set(part, offset);
+          offset += part.length;
+        });
+
+        return result;
+      }
+
+      function textBytes(text) {
+        return new TextEncoder().encode(sanitize(text));
+      }
+
+      function escPosQrCommands(data) {
+        const encoded = textBytes(data);
+        const storeLength = encoded.length + 3;
+        const pL = storeLength & 0xff;
+        const pH = (storeLength >> 8) & 0xff;
+
+        return concatBytes(
+          new Uint8Array([0x1d, 0x28, 0x6b, 0x04, 0x00, 0x31, 0x41, 0x32, 0x00]),
+          new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x43, 0x05]),
+          new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x45, 0x31]),
+          new Uint8Array([0x1d, 0x28, 0x6b, pL, pH, 0x31, 0x50, 0x30]),
+          encoded,
+          new Uint8Array([0x1d, 0x28, 0x6b, 0x03, 0x00, 0x31, 0x51, 0x30])
+        );
+      }
+
+
+      function getQrSourceCanvas() {
+        const holder = document.getElementById("qrCode");
+        const canvas = holder?.querySelector("canvas");
+        if (canvas) return canvas;
+
+        const image = holder?.querySelector("img");
+        if (!image || !image.complete) {
+          throw new Error("QR preview is not ready yet.");
+        }
+
+        const fallback = document.getElementById("printQrCanvas");
+        const context = fallback.getContext("2d", { willReadFrequently: true });
+        context.clearRect(0, 0, fallback.width, fallback.height);
+        context.drawImage(image, 0, 0, fallback.width, fallback.height);
+        return fallback;
+      }
+
+      function canvasToEscPosRaster(sourceCanvas, targetWidth = 240) {
+        const sourceWidth = sourceCanvas.width;
+        const sourceHeight = sourceCanvas.height;
+        const scale = targetWidth / sourceWidth;
+        const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+        const canvas = document.getElementById("printQrCanvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        const context = canvas.getContext("2d", { willReadFrequently: true });
+        context.imageSmoothingEnabled = false;
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, targetWidth, targetHeight);
+        context.drawImage(sourceCanvas, 0, 0, targetWidth, targetHeight);
+
+        const pixels = context.getImageData(0, 0, targetWidth, targetHeight).data;
+        const bytesPerRow = Math.ceil(targetWidth / 8);
+        const raster = new Uint8Array(bytesPerRow * targetHeight);
+
+        for (let y = 0; y < targetHeight; y += 1) {
+          for (let x = 0; x < targetWidth; x += 1) {
+            const pixelIndex = (y * targetWidth + x) * 4;
+            const red = pixels[pixelIndex];
+            const green = pixels[pixelIndex + 1];
+            const blue = pixels[pixelIndex + 2];
+            const alpha = pixels[pixelIndex + 3];
+            const luminance = (red * 299 + green * 587 + blue * 114) / 1000;
+            const isBlack = alpha > 20 && luminance < 160;
+
+            if (isBlack) {
+              const byteIndex = y * bytesPerRow + Math.floor(x / 8);
+              raster[byteIndex] |= 0x80 >> (x % 8);
+            }
+          }
+        }
+
+        const xL = bytesPerRow & 0xff;
+        const xH = (bytesPerRow >> 8) & 0xff;
+        const yL = targetHeight & 0xff;
+        const yH = (targetHeight >> 8) & 0xff;
+
+        return concatBytes(
+          new Uint8Array([0x1d, 0x76, 0x30, 0x00, xL, xH, yL, yH]),
+          raster
+        );
+      }
+
+      function buildReceiptBytes() {
+        const d = receiptData;
+        const separator = "-".repeat(PAPER_COLUMNS);
+
+        const normalText = [
+          "",
+          centered(d.address1),
+          centered(d.address2),
+          centered(`Tel: ${d.phone}`),
+          separator,
+          centered("SALES RECEIPT"),
+          separator,
+          pairLine("Receipt No:", d.receiptNo),
+          pairLine("Date:", d.date),
+          pairLine("Cashier:", d.cashier),
+          separator,
+          pairLine("Customer:", d.customer),
+          separator,
+          "ITEM",
+          ...wrap(d.product),
+          "",
+          pairLine("Qty:", d.quantity),
+          pairLine("Unit Price:", d.unitPrice),
+          separator,
+          pairLine("VAT (15%):", d.vat),
+          pairLine("NHIL (2.5%):", d.nhil),
+          pairLine("GETFund (2.5%):", d.getfund),
+          pairLine("Discount:", d.discount),
+          separator,
+          pairLine("TOTAL:", d.total),
+          separator,
+          pairLine("Payment:", d.method),
+          ""
+        ].join("\n") + "\n";
+
+        const footerText = [
+          "",
+          centered("SCAN TO VERIFY RECEIPT"),
+          separator,
+          centered("Thank you for shopping"),
+          centered("with CYTECH"),
+          centered("Circle Tip Toe Lane, Accra"),
+          centered(`Tel: ${d.phone}`),
+          "",
+          centered(""),
+          "",
+          "",
+          ""
+        ].join("\n") + "\n";
+
+        return concatBytes(
+          new Uint8Array([0x1b, 0x40]),
+          new Uint8Array([0x1b, 0x61, 0x01]),
+          new Uint8Array([0x1b, 0x45, 0x01]),
+          new Uint8Array([0x1d, 0x21, 0x11]),
+          textBytes(`${d.shop}\n`),
+          new Uint8Array([0x1d, 0x21, 0x00]),
+          new Uint8Array([0x1b, 0x45, 0x00]),
+          new Uint8Array([0x1b, 0x61, 0x00]),
+          textBytes(normalText),
+          new Uint8Array([0x1b, 0x61, 0x01]),
+          canvasToEscPosRaster(getQrSourceCanvas(), 240),
+          textBytes(footerText),
+          new Uint8Array([0x1b, 0x61, 0x00]),
+          new Uint8Array([0x1d, 0x56, 0x41, 0x03])
+        );
+      }
+
+      async function connectPrinter(showChooser = true) {
+        if (!window.isSecureContext) {
+          throw new Error("Open this page through HTTPS or localhost before connecting the MP583.");
+        }
+
+        if (!serialSupported()) {
+          throw new Error("Web Serial is not available. Use an updated Chrome browser.");
+        }
+
+        if (portOpen()) return printerPort;
+
+        setStatus("busy", "Connecting...", "Choose your paired MP583 printer.");
+
+        if (!printerPort) {
+          const permittedPorts = await navigator.serial.getPorts();
+          printerPort = permittedPorts[0] || null;
+        }
+
+        if (!printerPort && showChooser) {
+          printerPort = await navigator.serial.requestPort();
+        }
+
+        if (!printerPort) {
+          throw new Error("No MP583 printer was selected.");
+        }
+
+        if (!printerPort.writable) {
+          await printerPort.open({ baudRate: BAUD_RATE });
+        }
+
+        setStatus("ready", "MP583 connected", "Ready to print the CYTECH receipt.");
+        connectBtn.textContent = "Printer Connected";
+        setMessage("MP583 connected successfully. Press Print Receipt.", "success");
+
+        return printerPort;
+      }
+
+      async function writeInChunks(bytes) {
+        const writer = printerPort.writable.getWriter();
+
+        try {
+          for (let offset = 0; offset < bytes.length; offset += CHUNK_SIZE) {
+            const chunk = bytes.slice(offset, offset + CHUNK_SIZE);
+            await writer.write(chunk);
+            await delay(CHUNK_DELAY_MS);
+          }
+        } finally {
+          writer.releaseLock();
+        }
+      }
+
+      async function printReceipt() {
+        if (printing) return;
+
+        printing = true;
+        printBtn.disabled = true;
+
+        try {
+          setStatus("busy", "Preparing receipt...", "Generating ESC/POS printer commands.");
+          setMessage("Preparing the CYTECH laptop receipt for the MP583.");
+
+          await connectPrinter(true);
+
+          const bytes = buildReceiptBytes();
+
+          setStatus("busy", "Printing...", `${bytes.length} bytes are being sent to the MP583.`);
+          setMessage("Printing receipt through the MP583...");
+
+          await writeInChunks(bytes);
+
+          setStatus("ready", "Print completed", "The CYTECH receipt was sent successfully.");
+          setMessage("Receipt printed successfully through the MP583.", "success");
+        } catch (error) {
+          console.error(error);
+          setStatus("error", "Printing failed", error.message || "Could not print the receipt.");
+          setMessage(error.message || "Could not print the receipt.", "error");
+        } finally {
+          printing = false;
+          printBtn.disabled = false;
+        }
+      }
+
+      function createPreviewQr() {
+        const holder = document.getElementById("qrCode");
+        holder.innerHTML = "";
+
+        new QRCode(holder, {
+          text: qrText,
+          width: 180,
+          height: 180,
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+
+      async function restorePrinter() {
+        if (!window.isSecureContext) {
+          setStatus("error", "Secure page required", "Use HTTPS or localhost for MP583 Bluetooth printing.");
+          return;
+        }
+
+        if (!serialSupported()) {
+          setStatus("error", "Web Serial unavailable", "Use an updated Chrome browser.");
+          return;
+        }
+
+        try {
+          const ports = await navigator.serial.getPorts();
+
+          if (ports.length) {
+            printerPort = ports[0];
+            setStatus("", "Printer permission remembered", "Press Connect or Print Receipt to reconnect.");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      connectBtn.addEventListener("click", async () => {
+        try {
+          await connectPrinter(true);
+        } catch (error) {
+          setStatus("error", "Connection failed", error.message || "Could not connect to the MP583.");
+          setMessage(error.message || "Could not connect to the MP583.", "error");
+        }
+      });
+
+      printBtn.addEventListener("click", printReceipt);
+      document.getElementById("browserPrintBtn").addEventListener("click", () => window.print());
+
+      navigator.serial?.addEventListener("disconnect", event => {
+        if (event.target === printerPort) {
+          printerPort = null;
+          setStatus("error", "Printer disconnected", "Reconnect the MP583 before printing.");
+          setMessage("The MP583 was disconnected.", "error");
+          connectBtn.textContent = "Connect MP583";
+        }
+      });
+
+      createPreviewQr();
+      window.setTimeout(restorePrinter, 150);
+    })();
+  </script>
+</body>
+</html>
